@@ -1,0 +1,43 @@
+Order_ID,Order_Date,Customer_Name,Segment,Region,City,Category,Sub_Category,Product_Name,Sales,Profit,Quantity,Discount
+ORD-2025-101,2025-10-02,Acme Corp,Corporate,West,Seattle,Technology,Laptops,MacBook Pro 16,2499.00,520.00,1,0.00
+ORD-2025-102,2025-10-05,Global Logistics,Corporate,South,Atlanta,Furniture,Chairs,Ergonomic Mesh Chair,350.00,85.00,2,0.10
+ORD-2025-103,2025-10-09,Sarah Jenkins,Consumer,East,New York,Technology,Phones,iPhone 15 Pro,1199.00,280.00,1,0.00
+ORD-2025-104,2025-10-14,Alpha Media,Small Business,Central,Chicago,Office Supplies,Binders,Heavy Duty Binder Pack,45.00,18.50,5,0.00
+ORD-2025-105,2025-10-18,David Kim,Consumer,West,San Francisco,Technology,Accessories,Wireless Keyboard & Mouse,120.00,45.00,2,0.05
+ORD-2025-106,2025-10-22,Apex Holdings,Corporate,North,Minneapolis,Furniture,Bookcases,Modern Wooden Bookcase,680.00,140.00,1,0.15
+ORD-2025-107,2025-10-26,Elena Rostova,Consumer,East,Boston,Office Supplies,Paper,Premium Printing Paper (5 Reams),65.00,22.00,4,0.00
+ORD-2025-108,2025-10-30,TechStart Inc,Small Business,West,San Jose,Technology,Monitors,4K UltraHD 32in Monitor,580.00,165.00,2,0.10
+ORD-2025-109,2025-11-03,Michael Chang,Consumer,South,Miami,Furniture,Tables,Conference Table Oval,1250.00,310.00,1,0.05
+ORD-2025-110,2025-11-07,Vertex Solutions,Corporate,Central,Dallas,Technology,Laptops,Dell XPS 15,1850.00,410.00,2,0.00
+ORD-2025-111,2025-11-12,Olivia Martin,Consumer,West,Portland,Office Supplies,Storage,Filing Cabinet 3-Drawer,210.00,55.00,1,0.10
+ORD-2025-112,2025-11-16,Zenith Labs,Small Business,East,Philadelphia,Technology,Phones,Google Pixel 8,899.00,190.00,2,0.00
+ORD-2025-113,2025-11-20,Robert Miller,Consumer,North,Detroit,Furniture,Chairs,Executive Leather Chair,450.00,95.00,1,0.20
+ORD-2025-114,2025-11-24,Nexus Retail,Corporate,South,Houston,Office Supplies,Appliances,Compact Refrigerator,320.00,-40.00,1,0.25
+ORD-2025-115,2025-11-28,Emily Davis,Consumer,East,New York,Technology,Accessories,USB-C Docking Station,180.00,60.00,3,0.05
+ORD-2025-116,2025-12-02,Summit Corp,Corporate,West,Los Angeles,Technology,Laptops,Lenovo ThinkPad X1,1650.00,380.00,3,0.00
+ORD-2025-12-07,2025-12-07,Daniel Lee,Consumer,Central,Austin,Furniture,Furnishings,LED Desk Lamp,75.00,28.00,4,0.00
+ORD-2025-118,2025-12-11,Quantum Fin,Corporate,East,New York,Technology,Monitors,Curved Gaming Monitor 34in,750.00,210.00,2,0.10
+ORD-2025-119,2025-12-15,Sophia Brown,Consumer,South,Charlotte,Office Supplies,Paper,Eco Friendly Paper (10 Reams),110.00,38.00,2,0.00
+ORD-2025-120,2025-12-19,Pioneer Tech,Small Business,West,San Diego,Technology,Accessories,Noise Cancelling Headset,240.00,80.00,4,0.05
+ORD-2025-121,2025-12-23,James Wilson,Consumer,North,Chicago,Furniture,Chairs,Ergonomic Mesh Chair,350.00,85.00,1,0.00
+ORD-2025-122,2025-12-28,Starlight Corp,Corporate,East,Washington DC,Technology,Laptops,MacBook Pro 14,1999.00,440.00,2,0.05
+ORD-2026-101,2026-01-04,Acme Corp,Corporate,West,Seattle,Technology,Monitors,4K UltraHD 32in Monitor,580.00,165.00,3,0.00
+ORD-2026-102,2026-01-08,Lucas Scott,Consumer,South,Orlando,Furniture,Bookcases,Steel Shelving Unit,320.00,72.00,2,0.10
+ORD-2026-103,2026-01-13,Vertex Solutions,Corporate,Central,Dallas,Technology,Accessories,Wireless Keyboard & Mouse,120.00,45.00,5,0.05
+ORD-2026-104,2026-01-17,Chloe Bennett,Consumer,East,Boston,Office Supplies,Storage,Clear Plastic Bins (Pack of 6),90.00,32.00,3,0.00
+ORD-2026-105,2026-01-22,Global Logistics,Corporate,South,Atlanta,Furniture,Tables,Executive Standing Desk,850.00,195.00,2,0.15
+ORD-2026-106,2026-01-27,Harper White,Consumer,West,Phoenix,Technology,Phones,iPhone 15,899.00,210.00,1,0.00
+ORD-2026-107,2026-02-02,Nexus Retail,Corporate,South,Houston,Technology,Laptops,Dell XPS 15,1850.00,410.00,1,0.00
+ORD-2026-108,2026-02-06,Benjamin Taylor,Consumer,East,New York,Furniture,Chairs,Modern Accent Chair,290.00,65.00,2,0.10
+ORD-2026-109,2026-02-11,Alpha Media,Small Business,Central,Chicago,Office Supplies,Envelopes,Security Tint Envelopes 500ct,35.00,14.00,4,0.00
+ORD-2026-110,2026-02-15,Zoe Anderson,Consumer,West,Seattle,Technology,Accessories,Mechanical Gaming Keyboard,150.00,52.00,2,0.00
+ORD-2026-111,2026-02-20,Summit Corp,Corporate,West,Los Angeles,Technology,Monitors,Curved Gaming Monitor 34in,750.00,210.00,1,0.05
+ORD-2026-112,2026-02-25,Elijah Clark,Consumer,North,Minneapolis,Office Supplies,Appliances,Heavy Duty Paper Shredder,195.00,-15.00,1,0.20
+ORD-2026-113,2026-03-02,Quantum Fin,Corporate,East,New York,Technology,Laptops,MacBook Pro 16,2499.00,520.00,2,0.00
+ORD-2026-114,2026-03-06,Grace Lewis,Consumer,South,Miami,Furniture,Furnishings,Floor Mat Anti-Fatigue,85.00,31.00,3,0.00
+ORD-2026-115,2026-03-10,TechStart Inc,Small Business,West,San Jose,Technology,Phones,Google Pixel 8,899.00,190.00,3,0.05
+ORD-2026-116,2026-03-14,Alexander Walker,Consumer,East,Philadelphia,Office Supplies,Binders,Presentation Binders 10pk,55.00,21.00,2,0.00
+ORD-2026-117,2026-03-18,Starlight Corp,Corporate,East,Washington DC,Furniture,Chairs,Ergonomic Mesh Chair,350.00,85.00,4,0.10
+ORD-2026-118,2026-03-22,Mia Robinson,Consumer,Central,Austin,Technology,Accessories,USB-C Fast Charger 100W,65.00,26.00,5,0.00
+ORD-2026-119,2026-03-26,David Kim,Consumer,West,San Francisco,Technology,Laptops,Lenovo ThinkPad X1,1650.00,380.00,1,0.00
+ORD-2026-120,2026-03-30,Apex Holdings,Corporate,North,Detroit,Furniture,Tables,Executive Standing Desk,850.00,195.00,1,0.10

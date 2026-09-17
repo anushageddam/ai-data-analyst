@@ -1,0 +1,39 @@
+PO_Number,Vendor,Material,Material_Group,Plant,Purchase_Group,PO_Date,Quantity,Net_Value,Business_Unit,Department,Status
+PO-450001,TechSource Ltd,Laptops Core-i7,IT Equipment,Plant 1010,PG-01,2025-10-04,15,1050000,Digital Tech,Information Technology,Delivered
+PO-450002,Apex Packaging,Corrugated Boxes,Packaging,Plant 1020,PG-02,2025-10-11,500,75000,Manufacturing,Supply Chain,Delivered
+PO-450003,Global Steel Co,Steel Billets 10mm,Raw Materials,Plant 1010,PG-03,2025-10-18,20,980000,Heavy Industry,Procurement,Delivered
+PO-450004,Zenith Chemicals,Industrial Solvent X,Chemicals,Plant 1030,PG-02,2025-10-25,100,240000,Chemical Processing,Operations,Delivered
+PO-450005,InfraTech Systems,Server Rack 42U,IT Equipment,Plant 1010,PG-01,2025-10-29,4,360000,Digital Tech,Information Technology,Delivered
+PO-450006,Apex Packaging,Stretch Film 500m,Packaging,Plant 1020,PG-02,2025-11-02,250,62500,Manufacturing,Supply Chain,Delivered
+PO-450007,Prime Logistics,Forklift Battery Pack,Maintenance,Plant 1030,PG-04,2025-11-06,8,192000,Logistics,Facilities,Delivered
+PO-450008,Global Steel Co,Cold Rolled Coils,Raw Materials,Plant 1010,PG-03,2025-11-12,35,1470000,Heavy Industry,Procurement,Delivered
+PO-450009,TechSource Ltd,Dell 27in Monitors,IT Equipment,Plant 1010,PG-01,2025-11-15,30,450000,Digital Tech,Information Technology,Delivered
+PO-450010,Zenith Chemicals,Resin Polymer Grade A,Chemicals,Plant 1030,PG-02,2025-11-20,80,320000,Chemical Processing,Operations,Delivered
+PO-450011,Metro Facility Mgmt,HVAC Filter Sets,Maintenance,Plant 1010,PG-04,2025-11-26,50,85000,Facilities,Admin,Delivered
+PO-450012,TechSource Ltd,Network Switches Cisco,IT Equipment,Plant 1010,PG-01,2025-12-01,6,480000,Digital Tech,Information Technology,Delivered
+PO-450013,Apex Packaging,Heavy Duty Pallets,Packaging,Plant 1020,PG-02,2025-12-05,400,160000,Manufacturing,Supply Chain,Delivered
+PO-450014,Global Steel Co,Alloy Steel Rods,Raw Materials,Plant 1010,PG-03,2025-12-10,25,1125000,Heavy Industry,Procurement,Delivered
+PO-450015,Zenith Chemicals,Industrial Solvent X,Chemicals,Plant 1030,PG-02,2025-12-14,120,288000,Chemical Processing,Operations,Delivered
+PO-450016,Prime Logistics,Hydraulic Oil 200L,Maintenance,Plant 1030,PG-04,2025-12-21,15,135000,Logistics,Facilities,Delivered
+PO-450017,TechSource Ltd,Wireless Access Points,IT Equipment,Plant 1010,PG-01,2025-12-28,25,187500,Digital Tech,Information Technology,Delivered
+PO-450018,Global Steel Co,Steel Billets 10mm,Raw Materials,Plant 1010,PG-03,2026-01-04,30,1470000,Heavy Industry,Procurement,Delivered
+PO-450019,Apex Packaging,Corrugated Boxes,Packaging,Plant 1020,PG-02,2026-01-09,600,90000,Manufacturing,Supply Chain,Delivered
+PO-450020,InfraTech Systems,UPS Battery Banks,IT Equipment,Plant 1010,PG-01,2026-01-14,5,425000,Digital Tech,Information Technology,Delivered
+PO-450021,Zenith Chemicals,Catalyst Additive Z,Chemicals,Plant 1030,PG-02,2026-01-18,40,360000,Chemical Processing,Operations,Delivered
+PO-450022,Prime Logistics,Loading Dock Bumpers,Maintenance,Plant 1030,PG-04,2026-01-23,20,58000,Logistics,Facilities,Delivered
+PO-450023,Global Steel Co,Cold Rolled Coils,Raw Materials,Plant 1010,PG-03,2026-01-29,40,1680000,Heavy Industry,Procurement,Delivered
+PO-450024,TechSource Ltd,Ergonomic Keyboards,IT Equipment,Plant 1010,PG-01,2026-02-03,60,90000,Digital Tech,Information Technology,Delivered
+PO-450025,Apex Packaging,Stretch Film 500m,Packaging,Plant 1020,PG-02,2026-02-07,300,75000,Manufacturing,Supply Chain,Delivered
+PO-450026,Zenith Chemicals,Resin Polymer Grade A,Chemicals,Plant 1030,PG-02,2026-02-12,90,360000,Chemical Processing,Operations,Delivered
+PO-450027,Metro Facility Mgmt,LED High Bay Lights,Maintenance,Plant 1010,PG-04,2026-02-16,80,120000,Facilities,Admin,Delivered
+PO-450028,Global Steel Co,Alloy Steel Rods,Raw Materials,Plant 1010,PG-03,2026-02-21,28,1260000,Heavy Industry,Procurement,Delivered
+PO-450029,TechSource Ltd,Laptops Core-i7,IT Equipment,Plant 1010,PG-01,2026-02-26,20,1400000,Digital Tech,Information Technology,Delivered
+PO-450030,Prime Logistics,Hand Pallet Trucks,Maintenance,Plant 1030,PG-04,2026-03-02,6,108000,Logistics,Facilities,Pending
+PO-450031,Apex Packaging,Heavy Duty Pallets,Packaging,Plant 1020,PG-02,2026-03-06,450,180000,Manufacturing,Supply Chain,Pending
+PO-450032,Zenith Chemicals,Industrial Solvent X,Chemicals,Plant 1030,PG-02,2026-03-10,110,264000,Chemical Processing,Operations,Pending
+PO-450033,Global Steel Co,Steel Billets 10mm,Raw Materials,Plant 1010,PG-03,2026-03-14,32,1568000,Heavy Industry,Procurement,Pending
+PO-450034,TechSource Ltd,Dell 27in Monitors,IT Equipment,Plant 1010,PG-01,2026-03-18,25,375000,Digital Tech,Information Technology,Pending
+PO-450035,InfraTech Systems,Firewall Appliance,IT Equipment,Plant 1010,PG-01,2026-03-22,2,550000,Digital Tech,Information Technology,Pending
+PO-450036,Zenith Chemicals,Catalyst Additive Z,Chemicals,Plant 1030,PG-02,2026-03-25,50,450000,Chemical Processing,Operations,Pending
+PO-450037,Apex Packaging,Corrugated Boxes,Packaging,Plant 1020,PG-02,2026-03-28,550,82500,Manufacturing,Supply Chain,Pending
+PO-450038,Prime Logistics,Forklift Battery Pack,Maintenance,Plant 1030,PG-04,2026-03-30,5,120000,Logistics,Facilities,Pending

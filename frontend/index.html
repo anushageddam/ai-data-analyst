@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOO PROJECT — AI-Powered Business Intelligence & Analytics</title>
+  <meta name="description" content="Automate Power BI workflows with YOO PROJECT. Intelligent data profiling, automated KPI generation, smart visualization decision engine, predictive forecasting, and grounded AI chat.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Plotly.js CDN -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <!-- Feather Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="dark-theme">
+  <!-- TOP APPLICATION NAVBAR -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-icon">
+        <div class="brand-pulse"></div>
+        <i data-feather="bar-chart-2"></i>
+      </div>
+      <div>
+        <div class="brand-title">YOO <span class="brand-highlight">PROJECT</span></div>
+        <div class="brand-subtitle">Automated AI Data Analyst & BI Platform</div>
+      </div>
+    </div>
+
+    <!-- DATASET INFO PILL -->
+    <div class="dataset-status-pill" id="datasetPill">
+      <span class="status-dot"></span>
+      <span id="datasetName">Loading Dataset...</span>
+      <span class="badge" id="domainBadge">Domain</span>
+      <span class="badge health-badge" id="healthBadge">Score: --</span>
+    </div>
+
+    <!-- ACTION CONTROLS -->
+    <div class="header-actions">
+      <!-- SAMPLE DATASET SELECTOR -->
+      <div class="sample-dropdown-container">
+        <button class="btn btn-secondary btn-sm" id="sampleDropdownBtn" title="Switch Sample Enterprise Datasets">
+          <i data-feather="database"></i>
+          <span>Sample Data</span>
+          <i data-feather="chevron-down"></i>
+        </button>
+        <div class="dropdown-menu" id="sampleDropdownMenu">
+          <div class="dropdown-header">Enterprise Datasets</div>
+          <button class="dropdown-item" onclick="loadSample('sap_procurement')">
+            <i data-feather="package"></i>
+            <div>
+              <strong>SAP S/4HANA Procurement</strong>
+              <small>PO Values, Vendors, Material Groups, Plants</small>
+            </div>
+          </button>
+          <button class="dropdown-item" onclick="loadSample('enterprise_sales')">
+            <i data-feather="trending-up"></i>
+            <div>
+              <strong>Global Enterprise Sales</strong>
+              <small>Revenue, Profit Margins, Regions, Products</small>
+            </div>
+          </button>
+          <button class="dropdown-item" onclick="loadSample('sales_basic')">
+            <i data-feather="shopping-cart"></i>
+            <div>
+              <strong>Quick Sales Sample</strong>
+              <small>Orders, Electronics, Categories</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-sm" id="openUploadModalBtn">
+        <i data-feather="upload-cloud"></i>
+        <span>Upload Data</span>
+      </button>
+
+      <button class="btn btn-secondary btn-sm" id="exportBtn" title="Export Filtered CSV">
+        <i data-feather="download"></i>
+        <span>Export</span>
+      </button>
+
+      <button class="icon-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+        <i data-feather="sun" id="themeIcon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- DYNAMIC GLOBAL CROSS-FILTER BAR -->
+  <section class="filter-bar" id="filterBarContainer">
+    <div class="filter-label">
+      <i data-feather="filter"></i>
+      <span>Cross-Filters:</span>
+    </div>
+    <div class="filter-controls" id="filterControls">
+      <!-- Dynamic dimension filters injected here -->
+      <div class="filter-placeholder">Loading auto-detected filter dimensions...</div>
+    </div>
+    <div class="filter-actions">
+      <span class="records-pill" id="recordsPill">Rows: -- / --</span>
+      <button class="btn-text" id="resetFiltersBtn">Reset</button>
+    </div>
+  </section>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="app-nav">
+    <button class="nav-tab active" data-tab="home">
+      <i data-feather="home"></i>
+      <span>Home</span>
+    </button>
+    <button class="nav-tab" data-tab="dashboard">
+      <i data-feather="grid"></i>
+      <span>AI Dashboard</span>
+    </button>
+    <button class="nav-tab" data-tab="profiler">
+      <i data-feather="shield"></i>
+      <span>Data Overview</span>
+    </button>
+    <button class="nav-tab" data-tab="insights">
+      <i data-feather="zap"></i>
+      <span>Insights</span>
+      <span class="tab-badge" id="insightsCountBadge">0</span>
+    </button>
+    <button class="nav-tab" data-tab="forecast">
+      <i data-feather="activity"></i>
+      <span>Forecast</span>
+    </button>
+    <button class="nav-tab" data-tab="explorer">
+      <i data-feather="table"></i>
+      <span>Data Explorer</span>
+    </button>
+    <button class="nav-tab" data-tab="chat">
+      <i data-feather="message-square"></i>
+      <span>AI Chat</span>
+    </button>
+  </nav>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="main-viewport">
+    <!-- TAB 0: HOME / LANDING & UPLOAD -->
+    <section class="tab-content active" id="tab-home">
+      <div class="home-hero">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          <span>Next-Generation Automated BI Engine</span>
+        </div>
+        <h1 class="hero-title">Automate Power BI with <span class="brand-highlight">YOO PROJECT</span></h1>
+        <p class="hero-subtitle">
+          Stop manually profiling data, writing DAX measures, selecting charts, and building dashboards.
+          Simply upload your data, and YOO PROJECT behaves like an <strong>AI Data Analyst + AI BI Analyst</strong> — delivering complete analytics, statistical insights, forecasts, and conversational intelligence automatically.
+        </p>
+
+        <!-- PROMINENT UPLOAD CARD -->
+        <div class="home-upload-card glass-card">
+          <div class="upload-dropzone" id="homeDropzone" onclick="document.getElementById('homeFileInput').click()">
+            <i data-feather="upload-cloud" class="upload-icon"></i>
+            <h3>Upload your data to start analyzing</h3>
+            <p>Supported formats: <strong>.csv</strong> and Excel <strong>.xlsx</strong></p>
+            <input type="file" id="homeFileInput" accept=".csv, .xlsx, .xls" style="display:none;">
+            <button class="btn btn-primary mt-3" type="button">Select File from Computer</button>
+          </div>
+          <!-- Sheet Selector on Home if Excel uploaded -->
+          <div class="sheet-selector mt-4" id="homeSheetSelectorContainer" style="display:none;">
+            <label for="homeExcelSheetSelect"><strong>Multiple Sheets Detected:</strong> Select sheet to analyze:</label>
+            <select id="homeExcelSheetSelect" class="form-select mt-1"></select>
+            <button class="btn btn-primary btn-sm mt-2 w-100" id="homeConfirmSheetBtn">Start Automated Analysis</button>
+          </div>
+          <div class="upload-progress mt-3" id="homeUploadSpinner" style="display:none;">
+            <div class="spinner"></div>
+            <p id="homeSpinnerText">Profiling dataset and constructing AI analytical model...</p>
+          </div>
+        </div>
+
+        <!-- ENTERPRISE SAMPLES GRID -->
+        <div class="samples-section mt-5">
+          <div class="section-heading-center">
+            <h3>Or Explore Instant Enterprise Demo Datasets</h3>
+            <p>Experience dynamic domain understanding without uploading your own file</p>
+          </div>
+          <div class="sample-cards-grid">
+            <div class="sample-feature-card glass-card">
+              <div class="card-icon-header" style="background:rgba(99,102,241,0.15); color:#6366f1;">
+                <i data-feather="package"></i>
+              </div>
+              <h4>SAP S/4HANA Procurement</h4>
+              <p>Enterprise procurement data: PO Numbers, Net Value Spend, Vendors, Plants, Material Groups, and Purchase Groups.</p>
+              <div class="sample-tags">
+                <span class="sample-tag">PO Value</span>
+                <span class="sample-tag">Vendors</span>
+                <span class="sample-tag">SAP ERP</span>
+              </div>
+              <button class="btn btn-primary btn-sm w-100 mt-3" onclick="startSampleAnalysis('sap_procurement')">
+                <i data-feather="play"></i>
+                <span>Start Analysis</span>
+              </button>
+            </div>
+
+            <div class="sample-feature-card glass-card">
+              <div class="card-icon-header" style="background:rgba(56,189,248,0.15); color:#38bdf8;">
+                <i data-feather="trending-up"></i>
+              </div>
+              <h4>Global Enterprise Sales</h4>
+              <p>Commercial sales data: Revenue, Profit Margins, Quantities, Discounts, Regions, Categories, and Customer Segments.</p>
+              <div class="sample-tags">
+                <span class="sample-tag">Revenue</span>
+                <span class="sample-tag">Profit Margin</span>
+                <span class="sample-tag">Commercial</span>
+              </div>
+              <button class="btn btn-primary btn-sm w-100 mt-3" onclick="startSampleAnalysis('enterprise_sales')">
+                <i data-feather="play"></i>
+                <span>Start Analysis</span>
+              </button>
+            </div>
+
+            <div class="sample-feature-card glass-card">
+              <div class="card-icon-header" style="background:rgba(16,185,129,0.15); color:#10b981;">
+                <i data-feather="shopping-cart"></i>
+              </div>
+              <h4>Quick Sales Sample</h4>
+              <p>Compact retail orders: Electronics, Accessories, Unit Prices, Order Dates, and Regional Distribution.</p>
+              <div class="sample-tags">
+                <span class="sample-tag">Orders</span>
+                <span class="sample-tag">Products</span>
+                <span class="sample-tag">Retail</span>
+              </div>
+              <button class="btn btn-primary btn-sm w-100 mt-3" onclick="startSampleAnalysis('sales_basic')">
+                <i data-feather="play"></i>
+                <span>Start Analysis</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ENTERPRISE DATA ARCHITECTURE PIPELINE -->
+        <div class="pipeline-section mt-5 glass-card">
+          <div class="pipeline-title">
+            <i data-feather="cpu"></i>
+            <span>Enterprise Data Pipeline Architecture</span>
+          </div>
+          <p class="pipeline-subtitle">
+            Architected to connect seamlessly to your automated corporate data pipelines:
+          </p>
+          <div class="pipeline-flow">
+            <div class="pipeline-step">
+              <div class="step-num">1</div>
+              <div class="step-name">SAP ERP / S4HANA</div>
+              <div class="step-desc">Business Transactions</div>
+            </div>
+            <div class="pipeline-arrow"><i data-feather="arrow-right"></i></div>
+            <div class="pipeline-step">
+              <div class="step-num">2</div>
+              <div class="step-name">Azure CDS</div>
+              <div class="step-desc">Common Data Service</div>
+            </div>
+            <div class="pipeline-arrow"><i data-feather="arrow-right"></i></div>
+            <div class="pipeline-step">
+              <div class="step-num">3</div>
+              <div class="step-name">Azure ADF</div>
+              <div class="step-desc">Data Factory ETL</div>
+            </div>
+            <div class="pipeline-arrow"><i data-feather="arrow-right"></i></div>
+            <div class="pipeline-step">
+              <div class="step-num">4</div>
+              <div class="step-name">SQL Database</div>
+              <div class="step-desc">Enterprise Warehouse</div>
+            </div>
+            <div class="pipeline-arrow"><i data-feather="arrow-right"></i></div>
+            <div class="pipeline-step highlight">
+              <div class="step-num">5</div>
+              <div class="step-name">YOO PROJECT</div>
+              <div class="step-desc">Automated AI BI</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: AI DASHBOARD (POWER BI LAYOUT) -->
+    <section class="tab-content" id="tab-dashboard">
+      <!-- KPI METRIC CARDS ROW -->
+      <div class="kpi-grid" id="kpiGrid">
+        <!-- Injected dynamically -->
+      </div>
+
+      <!-- VISUALIZATIONS GRID -->
+      <div class="visuals-grid" id="visualsGrid">
+        <!-- Injected dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 2: DATA PROFILING & QUALITY -->
+    <section class="tab-content" id="tab-profiler">
+      <div class="profiler-header-cards">
+        <div class="glass-card health-score-card">
+          <div class="card-title">Data Health Score</div>
+          <div class="health-gauge-container">
+            <div class="health-number" id="healthScoreDisplay">--%</div>
+            <div class="health-rating" id="healthStatusDisplay">Evaluating...</div>
+          </div>
+          <p class="card-caption">Composite index based on completeness, uniqueness, outlier frequency, and schema stability.</p>
+        </div>
+
+        <div class="glass-card metrics-summary-card">
+          <div class="card-title">Dataset Health Audit</div>
+          <div class="audit-grid" id="auditGrid">
+            <!-- Dynamic stats -->
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card mt-4">
+        <div class="card-header-flex">
+          <div class="card-title">Column Schema & Statistical Distributions</div>
+          <div class="type-filter-chips" id="typeFilterChips">
+            <button class="chip active" data-type="all">All Columns</button>
+            <button class="chip" data-type="Numerical">Numerical</button>
+            <button class="chip" data-type="Categorical">Categorical</button>
+            <button class="chip" data-type="DateTime">DateTime</button>
+            <button class="chip" data-type="ID">ID</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="columnsProfileTable">
+            <thead>
+              <tr>
+                <th>Column Name</th>
+                <th>Type</th>
+                <th>Null %</th>
+                <th>Unique Values</th>
+                <th>Min / Max</th>
+                <th>Mean / Median</th>
+                <th>Outliers</th>
+                <th>Top Frequency</th>
+              </tr>
+            </thead>
+            <tbody id="columnsProfileTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: EVIDENCE-BASED INSIGHTS -->
+    <section class="tab-content" id="tab-insights">
+      <div class="section-intro">
+        <h2>Evidence-Based Statistical Insights</h2>
+        <p>Every finding below is derived directly from deterministic computations over the active dataset. <strong>Zero mathematical hallucinations.</strong></p>
+      </div>
+      <div class="insights-masonry" id="insightsMasonry">
+        <!-- Dynamically injected -->
+      </div>
+    </section>
+
+    <!-- TAB 4: PREDICTIVE FORECASTING -->
+    <section class="tab-content" id="tab-forecast">
+      <div class="forecast-control-bar glass-card">
+        <div class="control-group">
+          <label for="forecastMeasureSelect">Forecast Measure:</label>
+          <select id="forecastMeasureSelect" class="form-select"></select>
+        </div>
+        <div class="control-group">
+          <label for="forecastHorizonSelect">Horizon:</label>
+          <select id="forecastHorizonSelect" class="form-select">
+            <option value="3" selected>Next 3 Periods</option>
+            <option value="6">Next 6 Periods</option>
+            <option value="12">Next 12 Periods</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="runForecastBtn">
+          <i data-feather="play"></i>
+          <span>Compute Forecast</span>
+        </button>
+      </div>
+
+      <div class="glass-card mt-4" id="forecastVisualContainer">
+        <div id="forecastPlotlyChart" style="width:100%; height:450px;"></div>
+      </div>
+
+      <div class="forecast-details-grid mt-4" id="forecastDetailsGrid">
+        <div class="glass-card">
+          <div class="card-title">Forecast Model Intelligence</div>
+          <div class="forecast-narrative" id="forecastNarrative">Generating predictive model...</div>
+        </div>
+        <div class="glass-card">
+          <div class="card-title">Model Reliability Metrics</div>
+          <div class="model-metrics-grid" id="modelMetricsGrid">
+            <!-- Dynamic metrics -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: DATA EXPLORER -->
+    <section class="tab-content" id="tab-explorer">
+      <div class="explorer-toolbar glass-card">
+        <div class="search-box">
+          <i data-feather="search"></i>
+          <input type="text" id="explorerSearchInput" placeholder="Search records across all fields...">
+        </div>
+        <div class="pagination-controls">
+          <button class="btn btn-secondary btn-sm" id="prevPageBtn"><i data-feather="chevron-left"></i></button>
+          <span id="pageIndicator">Page 1 of 1</span>
+          <button class="btn btn-secondary btn-sm" id="nextPageBtn"><i data-feather="chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="glass-card mt-4 table-responsive">
+        <table class="data-table" id="explorerTable">
+          <thead id="explorerTableHead"></thead>
+          <tbody id="explorerTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 6: AI BI ANALYST CHATBOT -->
+    <section class="tab-content" id="tab-chat">
+      <div class="chat-container glass-card">
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="ai-avatar"><i data-feather="cpu"></i></div>
+            <div>
+              <h3>AI Data Analyst</h3>
+              <p>Ask questions about your data. Instant calculations, context memory, and visual chart generation.</p>
+            </div>
+          </div>
+          <div class="chat-suggested-queries">
+            <button class="chip-query" onclick="askChat('Which region or vendor performed best?')">Top Performer</button>
+            <button class="chip-query" onclick="askChat('Show me the monthly trend as a chart')">Monthly Trend</button>
+            <button class="chip-query" onclick="askChat('What is the volume contribution by category?')">Category Share</button>
+            <button class="chip-query" onclick="askChat('What will the trend look like next 3 months?')">Predict Next 3 Months</button>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-bubble assistant-bubble">
+            <div class="avatar"><i data-feather="cpu"></i></div>
+            <div class="message-body">
+              <p>👋 Hello! I am your <strong>YOO PROJECT AI Data Analyst</strong>.</p>
+              <p>I have ingested and analyzed your dataset. Ask me anything — from rankings, regional contributions, and anomalies, to predictive forecasting or visual charts!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-bar">
+          <input type="text" id="chatInput" placeholder="Ask your data anything (e.g. 'Show top 5 products by sales' or 'What about profit?')...">
+          <button class="btn btn-primary" id="sendChatBtn">
+            <i data-feather="send"></i>
+            <span>Ask</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- UPLOAD MODAL -->
+  <div class="modal-backdrop" id="uploadModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i data-feather="upload-cloud"></i>
+          <span>Upload Dataset</span>
+        </div>
+        <button class="icon-btn" id="closeUploadModalBtn"><i data-feather="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-dropzone" id="dropzone">
+          <i data-feather="file-text" class="upload-icon"></i>
+          <h4>Upload your data to start analyzing</h4>
+          <p>Drag & drop your <strong>.csv</strong> or <strong>.xlsx</strong> file here, or browse files</p>
+          <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display:none;">
+          <button class="btn btn-primary btn-sm mt-3" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+        </div>
+
+        <!-- EXCEL SHEET SELECTOR -->
+        <div class="sheet-selector mt-4" id="sheetSelectorContainer" style="display:none;">
+          <label for="excelSheetSelect">Select Sheet from Workbook:</label>
+          <select id="excelSheetSelect" class="form-select mt-1"></select>
+          <button class="btn btn-primary btn-sm mt-2 w-100" id="confirmSheetBtn">Analyze Selected Sheet</button>
+        </div>
+
+        <!-- PROGRESS / LOADING SPINNER -->
+        <div class="upload-progress mt-3" id="uploadSpinner" style="display:none;">
+          <div class="spinner"></div>
+          <p id="spinnerText">Profiling dataset and building analytical model...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
