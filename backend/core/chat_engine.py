@@ -176,8 +176,23 @@ class AIChatEngine:
                     x_col = plan["dimension"]
                     y_col = plan["measure"]
                     chart = self._create_chat_bar_chart(result_df, x_col, y_col, f"{y_col} by {x_col}")
-                intent_label = plan["intent"].replace("_", " ").title()
-                answer = f"**{intent_label}** using **{plan['aggregation']}({plan['measure']})** by **{plan.get('dimension') or plan.get('time_dimension')}**. Results are calculated from the active filtered dataset."
+                if plan["intent"] == "ranking":
+                    direction = "lowest" if any(
+                        x in plan["question"].lower() for x in ("bottom", "lowest", "worst")
+                    ) else "highest"
+                    lead = rows[0]
+                    answer = (
+                        f"**{lead[plan['dimension']]}** has the {direction} "
+                        f"{plan['measure'].replace('_', ' ')} at **{float(lead[plan['measure']]):,.2f}**. "
+                        "The table and chart show the requested ranking."
+                    )
+                else:
+                    intent_label = plan["intent"].replace("_", " ").title()
+                    answer = (
+                        f"**{intent_label}** using **{plan['aggregation']}({plan['measure']})** "
+                        f"by **{plan.get('dimension') or plan.get('time_dimension')}**. "
+                        "Results are calculated from the active filtered dataset."
+                    )
                 self.context.update(plan["intent"].upper(), plan.get("dimension") or plan.get("time_dimension"), plan["measure"], result_df=result_df, chart=chart)
                 self.context.add_turn("assistant", answer)
                 return {"answer": answer, "chart": chart, "table_data": rows, "analysis_plan": plan}
