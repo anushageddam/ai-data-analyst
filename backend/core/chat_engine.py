@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple
 
+from .analytics_planner import AnalyticsPlanner, AnalyticsPlanError
+
 
 class ChatContext:
     """Maintains multi-turn conversational session context."""
@@ -47,6 +49,7 @@ class AIChatEngine:
         self.domain = semantic_summary["detected_domain"]
         self.forecast_engine = forecast_engine
         self.context = ChatContext()
+        self.planner = AnalyticsPlanner(df, semantic_summary)
 
     def _resolve_entities(self, query: str) -> Tuple[Optional[str], Optional[str]]:
         """Resolves target dimension and measure from query text or previous context."""
@@ -144,6 +147,43 @@ class AIChatEngine:
                     msg = f"Forecasting could not be reliably executed: {fc.get('reason')}"
                     self.context.add_turn("assistant", msg)
                     return {"answer": msg, "chart": None, "table_data": None}
+
+        # 3. DETERMINISTIC ANALYTICS PLANNER
+        # Use the planner for ordinary analytical questions before legacy handlers.
+        # Forecasting and explicit chart-replay requests above remain unchanged.
+        try:
+            planned = self.planner.analyze(q)
+            plan = planned["plan"]
+            result = planned["result"]
+            if plan["intent"] == "aggregation":
+                value = result["value"]
+                answer = f"**{plan['aggregation'].title()} of {plan['measure'].replace('_', ' ')}:** **{value:,.2f}**"
+                self.context.update("AGGREGATION", plan.get("dimension"), plan["measure"])
+                self.context.add_turn("assistant", answer)
+                return {"answer": answer, "chart": None, "table_data": None, "analysis_plan": plan}
+
+            rows = result.get("data", [])
+            if rows:
+                result_df = pd.DataFrame(rows)
+                if plan.get("intent") == "trend":
+                    x_col = "_period"
+                    y_col = plan["measure"]
+                    chart = {
+                        "data": [{"x": result_df[x_col].astype(str).tolist(), "y": result_df[y_col].astype(float).round(2).tolist(), "type": "scatter", "mode": "lines+markers"}],
+                        "layout": {"title": f"{y_col.replace('_', ' ').title()} Trend"}
+                    }
+                else:
+                    x_col = plan["dimension"]
+                    y_col = plan["measure"]
+                    chart = self._create_chat_bar_chart(result_df, x_col, y_col, f"{y_col} by {x_col}")
+                intent_label = plan["intent"].replace("_", " ").title()
+                answer = f"**{intent_label}** using **{plan['aggregation']}({plan['measure']})** by **{plan.get('dimension') or plan.get('time_dimension')}**. Results are calculated from the active filtered dataset."
+                self.context.update(plan["intent"].upper(), plan.get("dimension") or plan.get("time_dimension"), plan["measure"], result_df=result_df, chart=chart)
+                self.context.add_turn("assistant", answer)
+                return {"answer": answer, "chart": chart, "table_data": rows, "analysis_plan": plan}
+        except AnalyticsPlanError:
+            # Keep the existing conversational handlers as a compatibility fallback.
+            pass
 
         # 3. RANKING / TOP-N / HIGHEST / LOWEST
         dim, measure = self._resolve_entities(q)
