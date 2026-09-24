@@ -147,6 +147,49 @@ class AIChatEngine:
         self.context.add_turn("user", q)
 
         # 1. VISUALIZATION REQUEST ("show me a chart", "plot this", "visualize")
+        # If a chart type is explicitly requested, modify the previous visual.
+        chart_type_map = {
+            "donut": "donut",
+            "pie": "pie",
+            "bar": "bar",
+            "column": "column",
+            "line": "line",
+            "area": "area",
+        }
+        requested_chart_type = next(
+            (chart_type for word, chart_type in chart_type_map.items() if word in q_lower),
+            None,
+        )
+        if requested_chart_type and self.context.last_chart_spec:
+            chart = dict(self.context.last_chart_spec)
+            chart["data"] = [dict(series) for series in chart.get("data", [])]
+
+            if requested_chart_type == "line":
+                for series in chart["data"]:
+                    series["type"] = "scatter"
+                    series["mode"] = "lines+markers"
+            else:
+                for series in chart["data"]:
+                    series["type"] = requested_chart_type
+
+            layout = dict(chart.get("layout", {}))
+            layout["title"] = f"{self.context.last_measure or 'Value'} by {self.context.last_dimension or 'Category'}"
+            chart["layout"] = layout
+
+            self.context.update(
+                self.context.last_intent or "VISUAL",
+                self.context.last_dimension,
+                self.context.last_measure,
+                chart=chart,
+            )
+            msg = (
+                f"Updated the previous visualization to a "
+                f"**{requested_chart_type} chart** using the same analytical context."
+            )
+            self.context.add_turn("assistant", msg)
+            return {"answer": msg, "chart": chart, "table_data": None}
+
+
         if any(w in q_lower for w in ["chart", "plot", "graph", "visualize", "show as chart"]):
             if self.context.last_chart_spec:
                 msg = f"Here is the visualization for the previously discussed {self.context.last_measure or 'data'} breakdown:"
