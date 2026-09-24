@@ -83,9 +83,35 @@ class AIAnalysisPlanner:
             "base_plan": base,
         }
 
+    def _apply_filters(self, filters: list[Dict[str, Any]]) -> pd.DataFrame:
+        filtered = self.df.copy()
+
+        for item in filters:
+            field = item["field"]
+            operator = item["operator"]
+            value = item["value"]
+
+            if field not in filtered.columns:
+                raise AnalyticsPlanError(f"Filter field '{field}' does not exist in the current dataset.")
+
+            if operator == "equals":
+                mask = filtered[field].astype(str).str.lower() == str(value).lower()
+                filtered = filtered.loc[mask].copy()
+            else:
+                raise AnalyticsPlanError(f"Unsupported filter operator: {operator}")
+
+        if filtered.empty:
+            raise AnalyticsPlanError("The requested filter returned no matching rows.")
+
+        return filtered
+
     def analyze(self, question: str) -> Dict[str, Any]:
         plan = self.plan(question)
-        result = self.analytics_planner.execute(plan["base_plan"])
+        filters = plan["context"]["active_filters"]
+
+        execution_df = self._apply_filters(filters) if filters else self.df
+        execution_planner = AnalyticsPlanner(execution_df, self.semantic_summary)
+        result = execution_planner.execute(plan["base_plan"])
 
         return {
             "plan": plan,
@@ -93,6 +119,7 @@ class AIAnalysisPlanner:
             "validated": True,
             "evidence": {
                 "source": "active_dataframe",
-                "rows_used": int(len(self.df)),
+                "rows_used": int(len(execution_df)),
+                "filters_applied": filters,
             },
         }
