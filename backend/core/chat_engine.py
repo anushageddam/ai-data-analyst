@@ -154,14 +154,15 @@ class AIChatEngine:
         # Forecasting and explicit chart-replay requests above remain unchanged.
         try:
             planned = self.ai_planner.analyze(q)
-            plan = planned["plan"]
+            ai_plan = planned["plan"]
+            plan = ai_plan["base_plan"]
             result = planned["result"]
             if plan["intent"] == "aggregation":
                 value = result["value"]
                 answer = f"**{plan['aggregation'].title()} of {plan['measure'].replace('_', ' ')}:** **{value:,.2f}**"
                 self.context.update("AGGREGATION", plan.get("dimension"), plan["measure"])
                 self.context.add_turn("assistant", answer)
-                return {"answer": answer, "chart": None, "table_data": None, "analysis_plan": plan, "ai_analysis_plan": planned["plan"]}
+                return {"answer": answer, "chart": None, "table_data": None, "analysis_plan": plan, "ai_analysis_plan": ai_plan}
 
             rows = result.get("data", [])
             if rows:
