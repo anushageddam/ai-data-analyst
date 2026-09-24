@@ -50,6 +50,10 @@ def test_ai_planner_accepts_only_existing_filter_values(df):
     assert result["plan"]["context"]["active_filters"] == [
         {"field": "Region", "operator": "equals", "value": "East"}
     ]
+    assert result["result"]["data"] == [
+        {"Region": "East", "Sales": 400}
+    ]
+    assert result["evidence"]["rows_used"] == 2
 
 
 def test_ai_planner_does_not_invent_filter_values(df):
