@@ -46,3 +46,22 @@ def test_validation_and_divide_by_zero():
 
 def engine_divide(df):
     return MeasureEngine(df).divide(10, 0)
+
+
+def test_custom_measure_creation_and_validation():
+    from backend.core.measure_engine import CustomMeasureEngine
+
+    engine = CustomMeasureEngine(sample_df())
+    result = engine.create("Profit Margin", "Profit / Sales")
+
+    assert result["name"] == "Profit Margin"
+    assert result["formula"] == "Profit / Sales"
+    assert result["value"] == 19.0
+    assert engine.measures["Profit Margin"]["value"] == 19.0
+
+
+def test_custom_measure_rejects_missing_field():
+    from backend.core.measure_engine import CustomMeasureEngine
+
+    with pytest.raises(MeasureError):
+        CustomMeasureEngine(sample_df()).create("Bad", "Profit / Revenue")
