@@ -56,8 +56,8 @@ def test_custom_measure_creation_and_validation():
 
     assert result["name"] == "Profit Margin"
     assert result["formula"] == "Profit / Sales"
-    assert result["value"] == 19.0
-    assert engine.measures["Profit Margin"]["value"] == 19.0
+    assert result["value"] == 0.19
+    assert engine.measures["Profit Margin"]["value"] == 0.19
 
 
 def test_custom_measure_rejects_missing_field():
