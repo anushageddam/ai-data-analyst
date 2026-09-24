@@ -48,6 +48,25 @@ def test_chat_engine_uses_planner_for_top_n():
     assert all(row["Sales"] == 300 for row in result["table_data"])
 
 
+def test_chat_engine_uses_previous_context_for_short_followup():
+    df = pd.DataFrame({
+        "Region": ["East", "West", "East"],
+        "Category": ["A", "A", "B"],
+        "Sales": [100, 300, 200],
+        "Quantity": [1, 3, 2],
+    })
+    engine = AIChatEngine(df, _semantic())
+
+    first = engine.process_query("show quantity by category")
+    assert first["analysis_plan"]["dimension"] == "Category"
+    assert first["analysis_plan"]["measure"] == "Quantity"
+
+    followup = engine.process_query("top 2")
+    assert followup["analysis_plan"]["dimension"] == "Category"
+    assert followup["analysis_plan"]["measure"] == "Quantity"
+    assert [row["Category"] for row in followup["table_data"]] == ["A", "B"]
+
+
 def test_chat_engine_falls_back_for_non_analytical_message():
     df = pd.DataFrame({
         "Region": ["East"],
