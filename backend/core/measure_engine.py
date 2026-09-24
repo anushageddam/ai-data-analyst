@@ -122,7 +122,7 @@ class CustomMeasureEngine:
         if not clean_formula:
             raise MeasureError("A custom measure formula is required.")
 
-        tokens = [t.strip() for t in re.split(r"([+\\-*/])", clean_formula) if t.strip()]
+        tokens = [t.strip() for t in re.split(r"([+*/-])", clean_formula) if t.strip()]
         fields = [t for t in tokens if t not in {"+", "-", "*", "/"}]
         if not fields:
             raise MeasureError("Formula must contain at least one field.")
