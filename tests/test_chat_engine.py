@@ -67,6 +67,22 @@ def test_chat_engine_uses_previous_context_for_short_followup():
     assert [row["Category"] for row in followup["table_data"]] == ["A", "B"]
 
 
+def test_chat_engine_changes_previous_chart_type():
+    df = pd.DataFrame({
+        "Region": ["East", "West", "East"],
+        "Sales": [100, 300, 200],
+        "Quantity": [1, 3, 2],
+    })
+    engine = AIChatEngine(df, _semantic())
+
+    first = engine.process_query("show sales by region")
+    assert first["chart"]["data"][0]["type"] == "bar"
+
+    followup = engine.process_query("make it a donut chart")
+    assert followup["chart"]["data"][0]["type"] == "donut"
+    assert "donut" in followup["answer"].lower()
+
+
 def test_chat_engine_falls_back_for_non_analytical_message():
     df = pd.DataFrame({
         "Region": ["East"],
