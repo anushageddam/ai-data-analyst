@@ -28,6 +28,8 @@ def test_chat_engine_uses_planner_for_total():
 
     assert result["analysis_plan"]["intent"] == "aggregation"
     assert result["analysis_plan"]["measure"] == "Sales"
+    assert result["ai_analysis_plan"]["execution"]["deterministic"] is True
+    assert result["ai_analysis_plan"]["validation"]["measure_exists"] is True
     assert result["answer"].endswith("350.00**")
 
 
