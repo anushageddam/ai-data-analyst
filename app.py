@@ -14,6 +14,7 @@ import plotly.graph_objects as go
 from backend.core.data_sources import load_sample_dataset, FileDataSource
 from backend.core.profiler import DataProfiler
 from backend.core.semantic import SemanticEngine
+from backend.core.data_model import AnalyticalModel
 from backend.core.kpi_engine import KPIEngine
 from backend.core.vis_engine import VisDecisionEngine
 from backend.core.insights import EvidenceInsightEngine
@@ -78,6 +79,10 @@ prof_summary = profiler.profile_dataset()
 semantic_eng = SemanticEngine(df, prof_summary)
 sem_summary = semantic_eng.get_understanding_summary()
 
+# Shared analytical model used by future measures, visuals, filters and AI.
+analytical_model = AnalyticalModel(df, prof_summary, sem_summary)
+data_model = analytical_model.build()
+
 # SIDEBAR FILTERS (AUTOMATICALLY DETECTED)
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🔍 Global Cross-Filters")
@@ -118,9 +123,10 @@ st.markdown(
 st.sidebar.info("💡 **Tip**: The flagship Single Page Application is also running at [http://127.0.0.1:8000](http://127.0.0.1:8000)")
 
 # TABS INTERFACE
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📊 AI Dashboard",
     "🛡️ Data Profiling & Quality",
+    "🧩 Data Model",
     "💡 Evidence Insights",
     "🔮 Predictive Forecast",
     "📋 Data Explorer",
@@ -178,7 +184,41 @@ with tab2:
     st.dataframe(pd.DataFrame(col_table), use_container_width=True)
 
 # -------------------------------------------------------------
-# TAB 3: EVIDENCE-BASED INSIGHTS
+# TAB 3: DATA MODEL
+# -------------------------------------------------------------
+with tab3:
+    st.subheader("Analytical Data Model")
+    st.caption("Shared model of the active dataset: tables, field roles, types and basic metadata.")
+
+    model_table = data_model["tables"][0]
+    mc1, mc2, mc3 = st.columns(3)
+    mc1.metric("Tables", len(data_model["tables"]))
+    mc2.metric("Fields", len(model_table["fields"]))
+    mc3.metric("Relationships", len(data_model["relationships"]))
+
+    st.markdown(f"**Table:** {model_table["name"]} — {model_table["row_count"]:,} rows × {model_table["column_count"]} columns")
+
+    model_rows = [
+        {
+            "Field": field["name"],
+            "Role": field["role"],
+            "Analytical Type": field["analytical_type"],
+            "Unique Values": field["unique_count"],
+            "Nullable": "Yes" if field["nullable"] else "No",
+            "Sample Values": ", ".join(field["sample_values"]),
+        }
+        for field in model_table["fields"]
+    ]
+    st.dataframe(pd.DataFrame(model_rows), use_container_width=True)
+
+    if data_model["relationships"]:
+        st.markdown("#### Relationships")
+        st.dataframe(pd.DataFrame(data_model["relationships"]), use_container_width=True)
+    else:
+        st.caption("No relationships inferred for this single active dataset.")
+
+# -------------------------------------------------------------
+# TAB 4: EVIDENCE-BASED INSIGHTS
 # -------------------------------------------------------------
 with tab3:
     st.subheader("Evidence-Based Business Insights")
