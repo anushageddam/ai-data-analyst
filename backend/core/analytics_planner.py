@@ -22,12 +22,10 @@ class AnalyticsPlanner:
 
     def _resolve_field(self, query: str, fields: list[str]) -> Optional[str]:
         q = query.lower()
-        # Exact/phrase matches first.
         for field in sorted(fields, key=len, reverse=True):
             label = str(field).lower().replace("_", " ")
             if label in q or str(field).lower() in q:
                 return field
-        # Then require a meaningful token match.
         for field in sorted(fields, key=len, reverse=True):
             tokens = [t for t in re.split(r"[_\s-]+", str(field).lower()) if len(t) >= 4]
             if tokens and any(t in q for t in tokens):
@@ -50,7 +48,7 @@ class AnalyticsPlanner:
             return "ranking"
         if any(x in q for x in ("trend", "over time", "monthly", "weekly", "daily", "growth")):
             return "trend"
-        if any(x in q for x in ("average", "mean", "median", "minimum", "minimum", "maximum", "max", "min")):
+        if any(x in q for x in ("average", "mean", "median", "minimum", "maximum", "max", "min")):
             return "aggregation"
         if any(x in q for x in ("total", "sum", "overall", "how much", "how many")):
             return "aggregation"
@@ -80,9 +78,8 @@ class AnalyticsPlanner:
         q_lower = q.lower()
         for word, fn in (
             ("average", "AVERAGE"), ("mean", "AVERAGE"), ("median", "MEDIAN"),
-            ("minimum", "MIN"), ("minimum", "MIN"), ("maximum", "MAX"),
-            ("max", "MAX"), ("min", "MIN"), ("count", "COUNT"),
-            ("distinct", "DISTINCTCOUNT"),
+            ("minimum", "MIN"), ("maximum", "MAX"), ("max", "MAX"),
+            ("min", "MIN"), ("count", "COUNT"), ("distinct", "DISTINCTCOUNT"),
         ):
             if word in q_lower:
                 aggregation = fn
@@ -98,6 +95,26 @@ class AnalyticsPlanner:
             "time_dimension": self.semantic.get("primary_time"),
         }
 
+    def _group_and_aggregate(self, dimension: str, measure: str, aggregation: str) -> pd.DataFrame:
+        grouped = self.df.groupby(dimension, dropna=False)[measure]
+        if aggregation == "SUM":
+            result = grouped.sum()
+        elif aggregation == "AVERAGE":
+            result = grouped.mean()
+        elif aggregation == "MIN":
+            result = grouped.min()
+        elif aggregation == "MAX":
+            result = grouped.max()
+        elif aggregation == "COUNT":
+            result = grouped.count()
+        elif aggregation == "MEDIAN":
+            result = grouped.median()
+        elif aggregation == "DISTINCTCOUNT":
+            result = grouped.nunique()
+        else:
+            raise AnalyticsPlanError(f"Unsupported aggregation: {aggregation}")
+        return result.reset_index()
+
     def execute(self, plan: Dict[str, Any]) -> Dict[str, Any]:
         intent = plan["intent"]
         dimension = plan.get("dimension")
@@ -109,11 +126,14 @@ class AnalyticsPlanner:
             return {"kind": "scalar", "value": round(value, 6)}
 
         if intent == "ranking":
-            grouped = self.df.groupby(dimension, dropna=False)[measure].agg(aggregation.lower()).reset_index()
-            ascending = "bottom" in plan["question"].lower() or any(
-                x in plan["question"].lower() for x in ("lowest", "worst")
+            grouped = self._group_and_aggregate(dimension, measure, aggregation)
+            q_lower = plan["question"].lower()
+            ascending = "bottom" in q_lower or any(
+                x in q_lower for x in ("lowest", "worst")
             )
-            grouped = grouped.sort_values(measure, ascending=ascending).head(plan["top_n"])
+            grouped = grouped.sort_values(
+                measure, ascending=ascending, kind="mergesort"
+            ).head(plan["top_n"]).reset_index(drop=True)
             return {"kind": "table", "data": grouped.to_dict(orient="records")}
 
         if intent == "trend":
@@ -129,8 +149,8 @@ class AnalyticsPlanner:
             trend = temp.groupby("_period")[measure].agg(aggregation.lower()).reset_index()
             return {"kind": "table", "data": trend.to_dict(orient="records"), "time_dimension": time_dimension}
 
-        grouped = self.df.groupby(dimension, dropna=False)[measure].agg(aggregation.lower()).reset_index()
-        grouped = grouped.sort_values(measure, ascending=False).head(100)
+        grouped = self._group_and_aggregate(dimension, measure, aggregation)
+        grouped = grouped.sort_values(measure, ascending=False, kind="mergesort").head(100)
         return {"kind": "table", "data": grouped.to_dict(orient="records")}
 
     def analyze(self, query: str) -> Dict[str, Any]:
