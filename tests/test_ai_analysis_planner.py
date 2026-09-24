@@ -56,7 +56,7 @@ def test_ai_planner_does_not_invent_filter_values(df):
     planner = AIAnalysisPlanner(df, _semantic())
 
     result = planner.plan("show sales by region where region is Mars")
-    assert result["plan"]["context"]["active_filters"] == []
+    assert result["context"]["active_filters"] == []
 
 
 def test_ai_planner_rejects_empty_question(df):
