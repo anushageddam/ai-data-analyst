@@ -17,6 +17,7 @@ from backend.core.semantic import SemanticEngine
 from backend.core.data_model import AnalyticalModel
 from backend.core.kpi_engine import KPIEngine
 from backend.core.vis_engine import VisDecisionEngine
+from backend.core.visual_builder import VisualBuilder, VisualizationError
 from backend.core.insights import EvidenceInsightEngine
 from backend.core.forecasting import ForecastEngine
 from backend.core.chat_engine import AIChatEngine
@@ -145,6 +146,47 @@ with tab1:
             st.metric(label=kpi["title"], value=kpi["value"], delta=delta_str)
 
     st.markdown("---")
+    st.subheader("Visual Builder")
+    vb1, vb2, vb3 = st.columns(3)
+    with vb1:
+        vb_chart = st.selectbox("Chart Type", ["bar", "column", "stacked_bar", "stacked_column", "line", "area", "pie", "donut", "scatter", "histogram", "table"], key="vb_chart")
+    with vb2:
+        vb_dim = st.selectbox("Dimension / X", [None] + list(filtered_df.columns), key="vb_dim")
+    with vb3:
+        vb_measure = st.selectbox("Measure / Y", [None] + list(filtered_df.columns), key="vb_measure")
+    vb4, vb5 = st.columns(2)
+    with vb4:
+        vb_agg = st.selectbox("Aggregation", ["sum", "average", "min", "max", "count", "distinct_count", "median"], key="vb_agg")
+    with vb5:
+        vb_topn = st.number_input("Top N (0 = all)", min_value=0, value=0, step=1, key="vb_topn")
+    if st.button("Build Visual", type="primary"):
+        try:
+            st.session_state["custom_visual_result"] = VisualBuilder(filtered_df).build(
+                vb_chart, vb_dim, vb_measure, vb_agg, top_n=(vb_topn or None)
+            )
+        except VisualizationError as exc:
+            st.error(str(exc))
+    custom = st.session_state.get("custom_visual_result")
+    if custom:
+        st.caption("Custom visual built from the active filtered dataset.")
+        if custom["chart_type"] == "table":
+            st.dataframe(pd.DataFrame(custom["data"]), use_container_width=True)
+        elif custom["chart_type"] == "histogram":
+            st.plotly_chart(go.Figure(go.Histogram(x=custom["data"])), use_container_width=True)
+        elif custom["chart_type"] == "scatter":
+            pts = pd.DataFrame(custom["data"])
+            st.plotly_chart(go.Figure(go.Scatter(x=pts["x"], y=pts["y"], mode="markers")), use_container_width=True)
+        else:
+            plot_df = pd.DataFrame(custom["data"])
+            if custom["chart_type"] in {"pie", "donut"}:
+                fig = go.Figure(go.Pie(labels=plot_df[custom["dimension"]], values=plot_df["value"], hole=0.55 if custom["chart_type"] == "donut" else 0))
+            else:
+                fig = go.Figure(go.Bar(x=plot_df[custom["dimension"]], y=plot_df["value"]))
+                if custom["chart_type"] in {"stacked_bar", "stacked_column"}:
+                    fig.update_layout(barmode="stack")
+            st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("---")
     st.subheader("Automated BI Visualizations")
     for i in range(0, len(visuals), 2):
         row_cols = st.columns(2)
@@ -220,7 +262,7 @@ with tab3:
 # -------------------------------------------------------------
 # TAB 4: EVIDENCE-BASED INSIGHTS
 # -------------------------------------------------------------
-with tab3:
+with tab4:
     st.subheader("Evidence-Based Business Insights")
     st.caption("All findings are strictly backed by verifiable mathematical computations over the dataset.")
     for ins in insights:
@@ -235,7 +277,7 @@ with tab3:
 # -------------------------------------------------------------
 # TAB 4: PREDICTIVE FORECASTING
 # -------------------------------------------------------------
-with tab4:
+with tab5:
     st.subheader("Predictive Time-Series Forecast")
     measures = sem_summary.get("semantic_roles", {}).get("all_measures", [])
     fc_col1, fc_col2 = st.columns([2, 1])
@@ -262,7 +304,7 @@ with tab4:
 # -------------------------------------------------------------
 # TAB 5: DATA EXPLORER
 # -------------------------------------------------------------
-with tab5:
+with tab6:
     st.subheader("Underlying Data Explorer")
     search_q = st.text_input("Search records...")
     exp_df = filtered_df.copy()
@@ -274,7 +316,7 @@ with tab5:
 # -------------------------------------------------------------
 # TAB 6: ASK AI ANALYST (CHATBOT)
 # -------------------------------------------------------------
-with tab6:
+with tab7:
     st.subheader("Conversational AI Data Analyst")
     st.caption("Ask questions about your data. The engine maintains conversational context and avoids hallucinated numbers.")
 
