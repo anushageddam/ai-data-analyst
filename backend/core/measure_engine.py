@@ -132,11 +132,14 @@ class CustomMeasureEngine:
             if pd.to_numeric(self.df[field], errors="coerce").notna().sum() == 0:
                 raise MeasureError(f"Field '{field}' must be numeric for a custom measure.")
 
-        # Evaluate a safe arithmetic expression using aggregated field values.
         values = {field: float(pd.to_numeric(self.df[field], errors="coerce").sum()) for field in fields}
         expression = clean_formula
         for field in sorted(fields, key=len, reverse=True):
-            expression = re.sub(rf"(?<![A-Za-z0-9_]){re.escape(field)}(?![A-Za-z0-9_])", str(values[field]), expression)
+            expression = re.sub(
+                rf"(?<![A-Za-z0-9_]){re.escape(field)}(?![A-Za-z0-9_])",
+                str(values[field]),
+                expression,
+            )
         try:
             result = float(self._safe_eval(expression))
         except ZeroDivisionError:
@@ -150,6 +153,7 @@ class CustomMeasureEngine:
 
     @staticmethod
     def _safe_eval(expression: str) -> float:
-        if not re.fullmatch(r"[0-9eE.+\\-*/() ]+", expression):
+        allowed = set("0123456789eE.+-*/() ")
+        if not expression or any(char not in allowed for char in expression):
             raise MeasureError("Only numeric arithmetic (+, -, *, /) is supported.")
         return eval(expression, {"__builtins__": {}}, {})
