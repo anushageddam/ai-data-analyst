@@ -105,3 +105,51 @@ class MeasureEngine:
         if not match:
             raise MeasureError("Use the format FUNCTION(Field), for example SUM(Net_Value).")
         return {"function": match.group(1).upper(), "column": match.group(2).strip()}
+
+
+class CustomMeasureEngine:
+    """Deterministic reusable custom-measure definitions for simple BI formulas."""
+
+    def __init__(self, df: pd.DataFrame):
+        self.df = df.copy()
+        self.measures: Dict[str, Dict[str, Any]] = {}
+
+    def create(self, name: str, formula: str) -> Dict[str, Any]:
+        clean_name = str(name or "").strip()
+        clean_formula = str(formula or "").strip()
+        if not clean_name:
+            raise MeasureError("A custom measure name is required.")
+        if not clean_formula:
+            raise MeasureError("A custom measure formula is required.")
+
+        tokens = [t.strip() for t in re.split(r"([+\\-*/])", clean_formula) if t.strip()]
+        fields = [t for t in tokens if t not in {"+", "-", "*", "/"}]
+        if not fields:
+            raise MeasureError("Formula must contain at least one field.")
+        for field in fields:
+            if field not in self.df.columns:
+                raise MeasureError(f"Field '{field}' does not exist in the current dataset.")
+            if pd.to_numeric(self.df[field], errors="coerce").notna().sum() == 0:
+                raise MeasureError(f"Field '{field}' must be numeric for a custom measure.")
+
+        # Evaluate a safe arithmetic expression using aggregated field values.
+        values = {field: float(pd.to_numeric(self.df[field], errors="coerce").sum()) for field in fields}
+        expression = clean_formula
+        for field in sorted(fields, key=len, reverse=True):
+            expression = re.sub(rf"(?<![A-Za-z0-9_]){re.escape(field)}(?![A-Za-z0-9_])", str(values[field]), expression)
+        try:
+            result = float(self._safe_eval(expression))
+        except ZeroDivisionError:
+            raise MeasureError("Custom measure contains division by zero.")
+        except Exception as exc:
+            raise MeasureError(f"Invalid custom measure formula: {exc}")
+
+        definition = {"name": clean_name, "formula": clean_formula, "value": result}
+        self.measures[clean_name] = definition
+        return definition
+
+    @staticmethod
+    def _safe_eval(expression: str) -> float:
+        if not re.fullmatch(r"[0-9eE.+\\-*/() ]+", expression):
+            raise MeasureError("Only numeric arithmetic (+, -, *, /) is supported.")
+        return eval(expression, {"__builtins__": {}}, {})
