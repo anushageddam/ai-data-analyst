@@ -106,6 +106,40 @@ class AIChatEngine:
 
         return final_dimension, final_measure
 
+    def _contextualize_query(self, query: str) -> str:
+        """Resolve short analytical follow-ups using the previous analytical context."""
+        q = query.strip()
+        q_lower = q.lower()
+
+        analytical_followup = any(
+            phrase in q_lower
+            for phrase in (
+                "top", "bottom", "highest", "lowest", "best", "worst",
+                "trend", "over time", "growth", "average", "mean", "median",
+                "minimum", "maximum", "total", "sum", "show", "breakdown",
+                "distribution", "compare",
+            )
+        )
+        if not analytical_followup:
+            return q
+
+        known_fields = [
+            *(self.semantic.get("all_measures", [])),
+            *(self.semantic.get("all_dimensions", [])),
+        ]
+        has_current_field = any(
+            str(field).lower().replace("_", " ") in q_lower
+            for field in known_fields
+        )
+
+        if has_current_field or not (self.context.last_dimension and self.context.last_measure):
+            return q
+
+        return (
+            f"{q} by {self.context.last_dimension} "
+            f"{self.context.last_measure}"
+        )
+
     def process_query(self, query: str) -> Dict[str, Any]:
         """Main NLP conversation dispatcher."""
         q = query.strip()
@@ -153,7 +187,7 @@ class AIChatEngine:
         # Use the planner for ordinary analytical questions before legacy handlers.
         # Forecasting and explicit chart-replay requests above remain unchanged.
         try:
-            planned = self.ai_planner.analyze(q)
+            planned = self.ai_planner.analyze(self._contextualize_query(q))
             ai_plan = planned["plan"]
             plan = ai_plan["base_plan"]
             result = planned["result"]
