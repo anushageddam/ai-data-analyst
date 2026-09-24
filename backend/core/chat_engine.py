@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple
 
-from .analytics_planner import AnalyticsPlanner, AnalyticsPlanError
+from .analytics_planner import AnalyticsPlanError
+from .ai_analysis_planner import AIAnalysisPlanner
 
 
 class ChatContext:
@@ -49,7 +50,7 @@ class AIChatEngine:
         self.domain = semantic_summary["detected_domain"]
         self.forecast_engine = forecast_engine
         self.context = ChatContext()
-        self.planner = AnalyticsPlanner(df, semantic_summary)
+        self.ai_planner = AIAnalysisPlanner(df, semantic_summary)
 
     def _resolve_entities(self, query: str) -> Tuple[Optional[str], Optional[str]]:
         """Resolves target dimension and measure from query text or previous context."""
@@ -152,7 +153,7 @@ class AIChatEngine:
         # Use the planner for ordinary analytical questions before legacy handlers.
         # Forecasting and explicit chart-replay requests above remain unchanged.
         try:
-            planned = self.planner.analyze(q)
+            planned = self.ai_planner.analyze(q)
             plan = planned["plan"]
             result = planned["result"]
             if plan["intent"] == "aggregation":
@@ -160,7 +161,7 @@ class AIChatEngine:
                 answer = f"**{plan['aggregation'].title()} of {plan['measure'].replace('_', ' ')}:** **{value:,.2f}**"
                 self.context.update("AGGREGATION", plan.get("dimension"), plan["measure"])
                 self.context.add_turn("assistant", answer)
-                return {"answer": answer, "chart": None, "table_data": None, "analysis_plan": plan}
+                return {"answer": answer, "chart": None, "table_data": None, "analysis_plan": plan, "ai_analysis_plan": planned["plan"]}
 
             rows = result.get("data", [])
             if rows:
@@ -195,7 +196,7 @@ class AIChatEngine:
                     )
                 self.context.update(plan["intent"].upper(), plan.get("dimension") or plan.get("time_dimension"), plan["measure"], result_df=result_df, chart=chart)
                 self.context.add_turn("assistant", answer)
-                return {"answer": answer, "chart": chart, "table_data": rows, "analysis_plan": plan}
+                return {"answer": answer, "chart": chart, "table_data": rows, "analysis_plan": plan, "ai_analysis_plan": planned["plan"]}
         except AnalyticsPlanError:
             # Keep the existing conversational handlers as a compatibility fallback.
             pass
