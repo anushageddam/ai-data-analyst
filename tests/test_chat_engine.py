@@ -42,8 +42,8 @@ def test_chat_engine_uses_planner_for_top_n():
     result = engine.process_query("top 2 regions by sales")
 
     assert result["analysis_plan"]["intent"] == "ranking"
-    assert result["table_data"][0]["Region"] == "West"
-    assert result["table_data"][0]["Sales"] == 300
+    assert {row["Region"] for row in result["table_data"]} == {"East", "West"}
+    assert all(row["Sales"] == 300 for row in result["table_data"])
 
 
 def test_chat_engine_falls_back_for_non_analytical_message():
